@@ -12,7 +12,7 @@ const SLSHook = require("./controllers/bundle-security-label");
 
 const app = express();
 
-//trust proxy
+//trust proxy for https
 app.set("trust proxy", true);
 
 //middlewares
