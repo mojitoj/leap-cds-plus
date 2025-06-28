@@ -6,33 +6,26 @@ const { maybeApplyDecision } = require("../lib/decision-processor");
 const logger = require("../lib/logger");
 
 async function post(req, res, next) {
-  try {
-    validateConsentDecisionHookRequest(req);
+  validateConsentDecisionHookRequest(req);
 
-    const patientIds = req.body.context.patientId;
-    const category = req.body.context.category || [];
-    const content = req.body.context.content;
+  const patientIds = req.body.context.patientId;
+  const category = req.body.context.category || [];
+  const content = req.body.context.content;
 
-    const consentsBundle = await fetchConsents(patientIds, category);
-    const decisionEntry = await processDecision(
-      consentsBundle,
-      req.body.context
-    );
+  const consentsBundle = await fetchConsents(patientIds, category);
+  const decisionEntry = await processDecision(consentsBundle, req.body.context);
 
-    const revisedEntry = maybeApplyDecision(decisionEntry, content);
+  const revisedEntry = maybeApplyDecision(decisionEntry, content);
 
-    logger.debug(
-      `Request: ${req.body.hookInstance}, Consents: ${consentsBundle.map(
-        ({ fullUrl }) => fullUrl
-      )}, Decision: ${JSON.stringify(revisedEntry)}`
-    );
+  logger.debug(
+    `Request: ${req.body.hookInstance}, Consents: ${consentsBundle.map(
+      ({ fullUrl }) => fullUrl
+    )}, Decision: ${JSON.stringify(revisedEntry)}`
+  );
 
-    res.send({
-      cards: [asCard(revisedEntry)]
-    });
-  } catch (e) {
-    next(e);
-  }
+  res.send({
+    cards: [asCard(revisedEntry)]
+  });
 }
 
 module.exports = {
